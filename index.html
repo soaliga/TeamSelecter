@@ -878,7 +878,28 @@
       }
 
       .member-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+
+      .member-item {
+        padding: 8px 8px;
+        gap: 6px;
+      }
+
+      .member-name {
+        font-size: 0.75rem;
+      }
+
+      .member-check {
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+        border-radius: 4px;
+      }
+
+      .member-check::after {
+        font-size: 10px;
       }
 
       .teams-grid {
