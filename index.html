@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="오버워치 팀 나누기 - 멤버를 선택하고 랜덤으로 팀을 나눠보세요">
+  <title>Team Selecter — 오버워치 팀 나누기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ===== RESET & BASE ===== */
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #000000;
+      --bg-secondary: #1c1c1e;
+      --bg-tertiary: #2c2c2e;
+      --bg-elevated: rgba(44, 44, 46, 0.72);
+      --surface: rgba(255, 255, 255, 0.05);
+      --surface-hover: rgba(255, 255, 255, 0.08);
+      --surface-active: rgba(255, 255, 255, 0.12);
+      --text-primary: #f5f5f7;
+      --text-secondary: #a1a1a6;
+      --text-tertiary: #6e6e73;
+      --accent: #0a84ff;
+      --accent-hover: #409cff;
+      --accent-glow: rgba(10, 132, 255, 0.3);
+      --danger: #ff453a;
+      --danger-hover: #ff6961;
+      --success: #30d158;
+      --warning: #ffd60a;
+      --orange: #ff9f0a;
+      --purple: #bf5af2;
+      --pink: #ff375f;
+      --teal: #64d2ff;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.15);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 40px rgba(10, 132, 255, 0.15);
+      --transition: 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --transition-spring: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f2f2f7;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e5e5ea;
+      --bg-elevated: rgba(255, 255, 255, 0.85);
+      --surface: rgba(0, 0, 0, 0.03);
+      --surface-hover: rgba(0, 0, 0, 0.06);
+      --surface-active: rgba(0, 0, 0, 0.09);
+      --text-primary: #1d1d1f;
+      --text-secondary: #6e6e73;
+      --text-tertiary: #aeaeb2;
+      --accent: #007aff;
+      --accent-hover: #0056b3;
+      --accent-glow: rgba(0, 122, 255, 0.2);
+      --danger: #ff3b30;
+      --danger-hover: #d90007;
+      --success: #34c759;
+      --warning: #ffcc00;
+      --orange: #ff9500;
+      --purple: #af52de;
+      --pink: #ff2d55;
+      --teal: #5ac8fa;
+      --border: rgba(0, 0, 0, 0.06);
+      --border-strong: rgba(0, 0, 0, 0.12);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+      --shadow-glow: 0 0 40px rgba(0, 122, 255, 0.1);
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== BACKGROUND GRADIENT ===== */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at 20% 20%, rgba(10, 132, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(191, 90, 242, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(255, 55, 95, 0.04) 0%, transparent 50%);
+      z-index: -1;
+      animation: bgShift 20s ease-in-out infinite alternate;
+    }
+
+    [data-theme="light"] body::before,
+    [data-theme="light"]::before {
+      background: radial-gradient(ellipse at 20% 20%, rgba(0, 122, 255, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(175, 82, 222, 0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(255, 45, 85, 0.03) 0%, transparent 50%);
+    }
+
+    @keyframes bgShift {
+      0% {
+        transform: translate(0, 0) rotate(0deg);
+      }
+
+      100% {
+        transform: translate(-5%, -5%) rotate(3deg);
+      }
+    }
+
+    /* ===== LAYOUT ===== */
+    .app-container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* ===== THEME TOGGLE ===== */
+    .theme-toggle {
+      position: absolute;
+      top: 40px;
+      right: 24px;
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text-secondary);
+      border-radius: var(--radius-md);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .theme-toggle:hover {
+      background: var(--surface-hover);
+      border-color: var(--accent);
+      color: var(--text-primary);
+      transform: rotate(15deg);
+    }
+
+    /* ===== HEADER ===== */
+    .app-header {
+      text-align: center;
+      margin-bottom: 48px;
+      animation: fadeInDown 0.8s ease-out;
+      position: relative;
+    }
+
+    .app-header .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .app-header .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 4px 16px rgba(10, 132, 255, 0.3);
+    }
+
+    .app-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .app-header .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-top: 4px;
+    }
+
+    /* ===== GLASS CARD ===== */
+    .card {
+      background: var(--bg-elevated);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-md);
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      border-color: var(--border-strong);
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title .icon {
+      font-size: 1rem;
+    }
+
+    /* ===== ADD MEMBER ===== */
+    .add-member-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .input-field {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      font-family: inherit;
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .input-field::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .input-field:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      background: var(--surface-hover);
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0);
+      transition: var(--transition);
+    }
+
+    .btn:active::after {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 2px 12px rgba(10, 132, 255, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 4px 20px rgba(10, 132, 255, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-danger {
+      background: rgba(255, 69, 58, 0.15);
+      color: var(--danger);
+      border: 1px solid rgba(255, 69, 58, 0.2);
+    }
+
+    .btn-danger:hover {
+      background: rgba(255, 69, 58, 0.25);
+      border-color: rgba(255, 69, 58, 0.4);
+    }
+
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover {
+      background: var(--surface-hover);
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+    }
+
+    .btn-shuffle {
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: white;
+      font-size: 1.05rem;
+      padding: 16px 32px;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 4px 24px rgba(10, 132, 255, 0.3), 0 4px 24px rgba(191, 90, 242, 0.2);
+      width: 100%;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-shuffle:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(10, 132, 255, 0.4), 0 8px 32px rgba(191, 90, 242, 0.3);
+    }
+
+    .btn-shuffle:active {
+      transform: translateY(0);
+    }
+
+    .btn-shuffle:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-sm {
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ===== TOOLBAR ===== */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .member-count {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .member-count span {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* ===== MEMBER LIST ===== */
+    .member-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 8px;
+      max-height: 420px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .member-grid::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .member-grid::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .member-grid::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: 3px;
+    }
+
+    .member-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition);
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .member-item:hover {
+      background: var(--surface-hover);
+      border-color: var(--border);
+    }
+
+    .member-item.selected {
+      background: rgba(10, 132, 255, 0.12);
+      border-color: rgba(10, 132, 255, 0.3);
+    }
+
+    .member-item.selected .member-check {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .member-item.selected .member-check::after {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .member-check {
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      border: 2px solid var(--border-strong);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+      position: relative;
+    }
+
+    .member-check::after {
+      content: '✓';
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all var(--transition-spring);
+    }
+
+    .member-name {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .member-delete {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
+      border: none;
+      background: rgba(255, 69, 58, 0.15);
+      color: var(--danger);
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      opacity: 0;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .member-item:hover .member-delete {
+      opacity: 1;
+    }
+
+    .member-delete:hover {
+      background: rgba(255, 69, 58, 0.3);
+    }
+
+    /* ===== TEAM CONFIG ===== */
+    .team-config {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .team-config label {
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .team-count-selector {
+      display: flex;
+      gap: 6px;
+    }
+
+    .team-count-btn {
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      border-radius: var(--radius-md);
+      font-size: 1.05rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .team-count-btn:hover {
+      background: var(--surface-hover);
+      border-color: var(--border-strong);
+      color: var(--text-primary);
+    }
+
+    .team-count-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      box-shadow: 0 2px 12px rgba(10, 132, 255, 0.3);
+    }
+
+    /* ===== RESULTS ===== */
+    .results-container {
+      animation: fadeInUp 0.5s ease-out;
+    }
+
+    .teams-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .team-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      transition: all var(--transition);
+      animation: teamCardAppear 0.5s ease-out backwards;
+    }
+
+    .team-card:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .team-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .team-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: white;
+    }
+
+    .team-label {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .team-member-count {
+      margin-left: auto;
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+      font-weight: 500;
+    }
+
+    .team-members-list {
+      list-style: none;
+    }
+
+    .team-members-list li {
+      padding: 8px 12px;
+      font-size: 0.88rem;
+      color: var(--text-primary);
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      animation: memberSlide 0.3s ease-out backwards;
+    }
+
+    .team-members-list li:hover {
+      background: var(--surface-hover);
+    }
+
+    .team-members-list li::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    /* Team colors */
+    .team-color-0 {
+      --team-color: #0a84ff;
+    }
+
+    .team-color-1 {
+      --team-color: #ff375f;
+    }
+
+    .team-color-2 {
+      --team-color: #30d158;
+    }
+
+    .team-color-3 {
+      --team-color: #ff9f0a;
+    }
+
+    .team-color-4 {
+      --team-color: #bf5af2;
+    }
+
+    .team-color-5 {
+      --team-color: #64d2ff;
+    }
+
+    .team-card .team-badge {
+      background: var(--team-color);
+      box-shadow: 0 2px 12px color-mix(in srgb, var(--team-color) 40%, transparent);
+    }
+
+    .team-card .team-members-list li::before {
+      background: var(--team-color);
+      box-shadow: 0 0 6px color-mix(in srgb, var(--team-color) 50%, transparent);
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      text-align: center;
+    }
+
+    .empty-state .icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-state p {
+      color: var(--text-tertiary);
+      font-size: 0.95rem;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes teamCardAppear {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.96);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes memberSlide {
+      from {
+        opacity: 0;
+        transform: translateX(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      20% {
+        transform: translateX(-4px) rotate(-1deg);
+      }
+
+      40% {
+        transform: translateX(4px) rotate(1deg);
+      }
+
+      60% {
+        transform: translateX(-3px) rotate(-0.5deg);
+      }
+
+      80% {
+        transform: translateX(3px) rotate(0.5deg);
+      }
+    }
+
+    .shuffling {
+      animation: shake 0.4s ease-in-out;
+    }
+
+    /* Add per-item animation delay for team cards */
+    .team-card:nth-child(1) {
+      animation-delay: 0.05s;
+    }
+
+    .team-card:nth-child(2) {
+      animation-delay: 0.12s;
+    }
+
+    .team-card:nth-child(3) {
+      animation-delay: 0.19s;
+    }
+
+    .team-card:nth-child(4) {
+      animation-delay: 0.26s;
+    }
+
+    .team-card:nth-child(5) {
+      animation-delay: 0.33s;
+    }
+
+    .team-card:nth-child(6) {
+      animation-delay: 0.40s;
+    }
+
+    /* per-member slide delay */
+    .team-members-list li:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .team-members-list li:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .team-members-list li:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+
+    .team-members-list li:nth-child(4) {
+      animation-delay: 0.25s;
+    }
+
+    .team-members-list li:nth-child(5) {
+      animation-delay: 0.3s;
+    }
+
+    .team-members-list li:nth-child(6) {
+      animation-delay: 0.35s;
+    }
+
+    .team-members-list li:nth-child(7) {
+      animation-delay: 0.4s;
+    }
+
+    .team-members-list li:nth-child(8) {
+      animation-delay: 0.45s;
+    }
+
+    .team-members-list li:nth-child(9) {
+      animation-delay: 0.5s;
+    }
+
+    .team-members-list li:nth-child(10) {
+      animation-delay: 0.55s;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 640px) {
+      .app-container {
+        padding: 24px 16px 60px;
+      }
+
+      .app-header h1 {
+        font-size: 1.6rem;
+      }
+
+      .member-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+
+      .teams-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .toolbar-left,
+      .toolbar-right {
+        justify-content: space-between;
+      }
+
+      .card {
+        padding: 20px;
+      }
+    }
+
+    /* ===== TOAST ===== */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 12px 20px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(20px);
+      animation: toastIn 0.3s ease-out, toastOut 0.3s ease-in 2.2s forwards;
+      pointer-events: auto;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes toastOut {
+      from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.95);
+      }
+    }
+
+    /* ===== EDIT MODE ===== */
+    .edit-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      transition: all var(--transition);
+      font-family: inherit;
+      margin-left: auto;
+    }
+
+    .edit-toggle:hover {
+      background: var(--surface-hover);
+      color: var(--text-secondary);
+      border-color: var(--border-strong);
+    }
+
+    .edit-toggle.active {
+      background: rgba(10, 132, 255, 0.12);
+      border-color: rgba(10, 132, 255, 0.3);
+      color: var(--accent);
+    }
+
+    [data-theme="light"] .edit-toggle.active {
+      background: rgba(0, 122, 255, 0.1);
+      border-color: rgba(0, 122, 255, 0.25);
+      color: var(--accent);
+    }
+
+    .edit-only {
+      display: none;
+    }
+
+    .editing .edit-only {
+      display: flex;
+    }
+
+    .editing .member-item:hover .member-delete {
+      display: flex !important;
+    }
+
+    :not(.editing) .member-delete {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="logo">
+        <div class="logo-icon">⚔️</div>
+        <h1>오버워치 팀 나누기</h1>
+      </div>
+      <p class="subtitle">랜덤 팀 선택기</p>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="테마 변경">🌙</button>
+    </header>
+
+    <!-- MEMBER MANAGEMENT -->
+    <section class="card" id="memberCard">
+      <div class="card-title">
+        <span class="icon">👥</span> 멤버 관리
+        <button class="edit-toggle" id="editToggle" onclick="toggleEditMode()">✏️ 편집</button>
+      </div>
+
+      <div class="add-member-row edit-only">
+        <input type="text" class="input-field" id="newMemberInput" placeholder="새 멤버 이름 입력..." maxlength="30">
+        <button class="btn btn-primary" id="addMemberBtn" onclick="addMember()">추가</button>
+      </div>
+
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <button class="btn btn-ghost btn-sm" onclick="selectAll()">전체 선택</button>
+          <button class="btn btn-ghost btn-sm" onclick="deselectAll()">전체 해제</button>
+          <div class="member-count">
+            선택 <span id="selectedCount">0</span> / <span id="totalCount">0</span>
+          </div>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn btn-ghost btn-sm edit-only" id="undoBtn" onclick="undoDelete()" style="display:none;">↩
+            되돌리기</button>
+          <button class="btn btn-danger btn-sm edit-only" onclick="deleteSelected()">선택 삭제</button>
+          <button class="btn btn-ghost btn-sm edit-only" onclick="resetMembers()">초기화</button>
+        </div>
+      </div>
+
+      <div class="member-grid" id="memberGrid">
+        <!-- Members rendered by JS -->
+      </div>
+    </section>
+
+    <!-- TEAM CONFIGURATION -->
+    <section class="card">
+      <div class="card-title"><span class="icon">⚙️</span> 팀 설정</div>
+
+      <div class="team-config">
+        <label>팀 수</label>
+        <div class="team-count-selector" id="teamCountSelector">
+          <button class="team-count-btn active" data-count="2" onclick="setTeamCount(2)">2</button>
+          <button class="team-count-btn" data-count="3" onclick="setTeamCount(3)">3</button>
+          <button class="team-count-btn" data-count="4" onclick="setTeamCount(4)">4</button>
+          <button class="team-count-btn" data-count="5" onclick="setTeamCount(5)">5</button>
+          <button class="team-count-btn" data-count="6" onclick="setTeamCount(6)">6</button>
+        </div>
+      </div>
+
+      <button class="btn btn-shuffle" id="shuffleBtn" onclick="shuffleTeams()">
+        🎲 팀 나누기
+      </button>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="card results-container" id="resultsCard" style="display: none;">
+      <div class="card-title"><span class="icon">🏆</span> 결과</div>
+      <div class="teams-grid" id="teamsGrid">
+        <!-- Teams rendered by JS -->
+      </div>
+    </section>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // ===== DATA =====
+    const DEFAULT_MEMBERS = [
+      '김태형', '네모네모멈뭄미', '메로이의둠피교실',
+      '멜링', '새언니', '세갈치',
+      '아리가또텔레스', '영자', '오식이형님',
+      '장이수', '제주감귤농장', '참치',
+      '코피리부는사나이(짭피)', '코피리부는사나이(찐피)', '형이왜거기서나와',
+      '훌리건', 'Egoist', 'JANG',
+      'LAS', 'RASHFORD', 'REONUNAS2',
+      'Soariga', 'TITANIUM', 'ZARA',
+      '라붕이', 'AURA', '우기',
+      '살려주세요', '로어슈거', '징베',
+    ];
+
+    const TEAM_NAMES = ['Team A', 'Team B', 'Team C', 'Team D', 'Team E', 'Team F'];
+    const STORAGE_KEY = 'teamSelecter_members';
+
+    let members = [];
+    let selectedMembers = new Set();
+    let teamCount = 2;
+    let undoStack = [];
+    let editMode = false;
+
+    // ===== INIT =====
+    function init() {
+      loadTheme();
+      loadMembers();
+      sortMembers();
+      renderMembers();
+      updateCounts();
+      bindEnterKey();
+    }
+
+    // ===== EDIT MODE =====
+    function toggleEditMode() {
+      editMode = !editMode;
+      const card = document.getElementById('memberCard');
+      const btn = document.getElementById('editToggle');
+      if (editMode) {
+        card.classList.add('editing');
+        btn.classList.add('active');
+        btn.innerHTML = '✅ 완료';
+      } else {
+        card.classList.remove('editing');
+        btn.classList.remove('active');
+        btn.innerHTML = '✏️ 편집';
+        undoStack = [];
+        updateUndoBtn();
+      }
+    }
+
+    function loadMembers() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        members = JSON.parse(stored);
+      } else {
+        members = [...DEFAULT_MEMBERS];
+        saveMembers();
+      }
+    }
+
+    function saveMembers() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
+    }
+
+    function sortMembers() {
+      // 선택 상태를 이름 기준으로 재매핑
+      const selectedNames = new Set([...selectedMembers].map(i => members[i]));
+      members.sort((a, b) => a.localeCompare(b, 'ko'));
+      selectedMembers = new Set();
+      members.forEach((name, idx) => {
+        if (selectedNames.has(name)) selectedMembers.add(idx);
+      });
+    }
+
+    // ===== THEME =====
+    function loadTheme() {
+      const saved = localStorage.getItem('teamSelecter_theme');
+      const theme = saved || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      updateThemeIcon(theme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('teamSelecter_theme', next);
+      updateThemeIcon(next);
+    }
+
+    function updateThemeIcon(theme) {
+      const btn = document.getElementById('themeToggle');
+      btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+      btn.title = theme === 'dark' ? '라이트 모드로' : '다크 모드로';
+    }
+
+    // ===== RENDER =====
+    function renderMembers() {
+      const grid = document.getElementById('memberGrid');
+
+      if (members.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <div class="icon">🙈</div>
+            <p>멤버가 없습니다. 위에서 추가해주세요!</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = members.map((name, idx) => `
+        <div class="member-item ${selectedMembers.has(idx) ? 'selected' : ''}"
+             onclick="toggleMember(${idx})"
+             style="animation: fadeInUp 0.3s ease-out ${idx * 0.02}s backwards;">
+          <div class="member-check"></div>
+          <span class="member-name" title="${name}">${name}</span>
+          <button class="member-delete" onclick="event.stopPropagation(); deleteMember(${idx})" title="삭제">✕</button>
+        </div>
+      `).join('');
+
+      updateCounts();
+    }
+
+    function updateCounts() {
+      document.getElementById('selectedCount').textContent = selectedMembers.size;
+      document.getElementById('totalCount').textContent = members.length;
+
+      const btn = document.getElementById('shuffleBtn');
+      btn.disabled = selectedMembers.size < 2;
+    }
+
+    // ===== MEMBER ACTIONS =====
+    function toggleMember(idx) {
+      const items = document.querySelectorAll('.member-item');
+      const item = items[idx];
+      if (selectedMembers.has(idx)) {
+        selectedMembers.delete(idx);
+        if (item) item.classList.remove('selected');
+      } else {
+        selectedMembers.add(idx);
+        if (item) item.classList.add('selected');
+      }
+      updateCounts();
+    }
+
+    function selectAll() {
+      members.forEach((_, idx) => selectedMembers.add(idx));
+      renderMembers();
+      showToast('✅ 전체 선택 완료');
+    }
+
+    function deselectAll() {
+      selectedMembers.clear();
+      renderMembers();
+      showToast('전체 선택 해제');
+    }
+
+    function addMember() {
+      const input = document.getElementById('newMemberInput');
+      const name = input.value.trim();
+
+      if (!name) {
+        showToast('⚠️ 이름을 입력해주세요');
+        input.focus();
+        return;
+      }
+
+      if (members.includes(name)) {
+        showToast('⚠️ 이미 존재하는 멤버입니다');
+        input.focus();
+        return;
+      }
+
+      members.push(name);
+      sortMembers();
+      saveMembers();
+      input.value = '';
+      renderMembers();
+      showToast(`🎉 ${name} 추가 완료`);
+    }
+
+    function deleteMember(idx) {
+      const name = members[idx];
+      undoStack.push({ members: [...members], selected: new Set(selectedMembers) });
+      members.splice(idx, 1);
+
+      // Update selected indices
+      const newSelected = new Set();
+      selectedMembers.forEach(i => {
+        if (i < idx) newSelected.add(i);
+        else if (i > idx) newSelected.add(i - 1);
+      });
+      selectedMembers = newSelected;
+
+      saveMembers();
+      renderMembers();
+      updateUndoBtn();
+      showToast(`🗑️ ${name} 삭제됨`);
+    }
+
+    function deleteSelected() {
+      if (selectedMembers.size === 0) {
+        showToast('⚠️ 선택된 멤버가 없습니다');
+        return;
+      }
+
+      undoStack.push({ members: [...members], selected: new Set(selectedMembers) });
+      const count = selectedMembers.size;
+      const sorted = [...selectedMembers].sort((a, b) => b - a);
+      sorted.forEach(idx => members.splice(idx, 1));
+
+      selectedMembers.clear();
+      saveMembers();
+      renderMembers();
+      updateUndoBtn();
+      showToast(`🗑️ ${count}명 삭제 완료`);
+    }
+
+    function undoDelete() {
+      if (undoStack.length === 0) return;
+      const prev = undoStack.pop();
+      members = prev.members;
+      selectedMembers = prev.selected;
+      saveMembers();
+      renderMembers();
+      updateUndoBtn();
+      showToast('↩ 삭제 되돌리기 완료');
+    }
+
+    function resetMembers() {
+      undoStack.push({ members: [...members], selected: new Set(selectedMembers) });
+      members = [...DEFAULT_MEMBERS];
+      selectedMembers.clear();
+      sortMembers();
+      saveMembers();
+      renderMembers();
+      updateUndoBtn();
+      showToast('🔄 기본 멤버 목록으로 초기화 완료');
+    }
+
+    function updateUndoBtn() {
+      const btn = document.getElementById('undoBtn');
+      btn.style.display = undoStack.length > 0 ? '' : 'none';
+    }
+
+    function bindEnterKey() {
+      document.getElementById('newMemberInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') addMember();
+      });
+    }
+
+    // ===== TEAM COUNT =====
+    function setTeamCount(count) {
+      teamCount = count;
+      document.querySelectorAll('.team-count-btn').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.count) === count);
+      });
+    }
+
+    // ===== SHUFFLE =====
+    function shuffleTeams() {
+      const selected = [...selectedMembers].map(idx => members[idx]);
+
+      if (selected.length < teamCount) {
+        showToast(`⚠️ 최소 ${teamCount}명 이상 선택해주세요`);
+        return;
+      }
+
+      const btn = document.getElementById('shuffleBtn');
+      btn.classList.add('shuffling');
+      btn.disabled = true;
+
+      setTimeout(() => {
+        btn.classList.remove('shuffling');
+        btn.disabled = false;
+
+        // Fisher-Yates Shuffle
+        const shuffled = [...selected];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+
+        // Distribute to teams
+        const teams = Array.from({ length: teamCount }, () => []);
+        shuffled.forEach((member, idx) => {
+          teams[idx % teamCount].push(member);
+        });
+
+        displayResults(teams);
+        copyTeamsToClipboard(teams);
+        showToast('🎲 팀 배정 완료! (클립보드에 복사됨)');
+      }, 500);
+    }
+
+    function displayResults(teams) {
+      const container = document.getElementById('resultsCard');
+      const grid = document.getElementById('teamsGrid');
+
+      container.style.display = 'block';
+
+      grid.innerHTML = teams.map((team, idx) => `
+        <div class="team-card team-color-${idx}">
+          <div class="team-card-header">
+            <div class="team-badge">${TEAM_NAMES[idx].split(' ')[1]}</div>
+            <span class="team-label">${TEAM_NAMES[idx]}</span>
+            <span class="team-member-count">${team.length}명</span>
+          </div>
+          <ul class="team-members-list">
+            ${team.map(name => `<li>${name}</li>`).join('')}
+          </ul>
+        </div>
+      `).join('');
+
+      // Smooth scroll to results
+      setTimeout(() => {
+        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    // ===== CLIPBOARD =====
+    function copyTeamsToClipboard(teams) {
+      let text = '🎲 오버워치 팀 나누기 결과\n';
+      text += '━'.repeat(24) + '\n\n';
+      teams.forEach((team, idx) => {
+        text += `【${TEAM_NAMES[idx]}】 (${team.length}명)\n`;
+        team.forEach(name => {
+          text += `  • ${name}\n`;
+        });
+        text += '\n';
+      });
+      navigator.clipboard.writeText(text).catch(() => {
+        // Clipboard API 실패 시 fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      });
+    }
+
+    // ===== TOAST =====
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      setTimeout(() => toast.remove(), 2600);
+    }
+
+    // ===== START =====
+    init();
+  </script>
+</body>
+
+</html>
