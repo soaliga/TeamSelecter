@@ -164,7 +164,12 @@
       background: var(--surface-hover);
       border-color: var(--accent);
       color: var(--text-primary);
-      transform: rotate(15deg);
+    }
+
+    @media (hover: hover) {
+      .theme-toggle:hover {
+        transform: rotate(15deg);
+      }
     }
 
     /* ===== HEADER ===== */
